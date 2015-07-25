@@ -28,7 +28,7 @@ public class DataItem : PropertyFacade {
 		_SetProperty( name , value );
 
 		if (!IsObligatoryProperty (name)) {
-			if( canLogObligatory ) LogObligatoryProperties();
+			if( canLogObligatory || controllerId == -1) LogObligatoryProperties();
 			LogPropertyUpdate (name);
 		}
 	}
