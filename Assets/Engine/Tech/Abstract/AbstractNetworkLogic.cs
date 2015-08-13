@@ -30,4 +30,23 @@ public abstract class AbstractNetworkLogic : MonoBehaviour{
 			Messenger.Broadcast( eventName , eventData );
 
 	}
+
+	public void SendAjax (string url, string data, string callbackEvent = ""){
+		WWW www = new WWW(url, System.Text.Encoding.UTF8.GetBytes(data));
+		
+		StartCoroutine(AjaxResponseCallback( www, callbackEvent));
+	}
+	
+	private IEnumerator AjaxResponseCallback(WWW www, string callbackEvent)
+	{
+		yield return www;
+		if (www.error == null){
+			if( callbackEvent != "" )
+				Messenger.Broadcast(callbackEvent, www.text);
+		} else {
+			// TODO: add better error callback logic
+			Debug.LogError("REST call failed");
+			Debug.LogError(www.error);
+		}    
+	}
 }

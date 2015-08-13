@@ -3,7 +3,7 @@ using System.Collections;
 using System.Text.RegularExpressions;
 
 public class ClientGUI : MonoBehaviour {
-	private string 	serverAdress 	= "127.0.0.1";
+	private string 	serverAdress 	= "192.168.0.100";
 	private string 	serverPort		= "7000";
 
 	private bool readyToConnect = false;

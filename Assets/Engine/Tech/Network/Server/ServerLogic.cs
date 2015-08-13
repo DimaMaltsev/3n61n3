@@ -6,10 +6,16 @@ public class ServerLogic : AbstractNetworkLogic {
 
 	public StateManagerServer stateManager;
 
-	public void StartServer( int maxConnections , int listenPort , string gameName ){
-		uLink.Network.InitializeServer( maxConnections , listenPort );
+	private ServersManagerInterface serversManager;
 
-		// TODO: register host on master server
+	private int listenPort;
+	private string gameName;
+
+	public void StartServer( int maxConnections , int listenPort , string gameName ){
+		this.listenPort = listenPort;
+		this.gameName = gameName;
+
+		uLink.Network.InitializeServer( maxConnections , listenPort );
 	}
 
 	protected override void Awake(){
@@ -17,6 +23,8 @@ public class ServerLogic : AbstractNetworkLogic {
 
 		Messenger.AddListener<int>( Events.Server.ForceClientDisconnect , OnForceClientDisconnect );
 		Messenger.AddListener<string, int> (Events.Network.AuthorizeRequest, OnAuthorizeRequest);
+
+		serversManager = GetComponent<ServersManagerInterface> ();
 
 		new ServerNetworkEventer( this );
 	}
@@ -37,6 +45,14 @@ public class ServerLogic : AbstractNetworkLogic {
 	}
 
 	void uLink_OnServerInitialized(){
+		//if (!uLink.Network.HavePublicAddress ()) {
+		//	Debug.LogWarning ("This server will not be visible in network as soon as it does not have public ip");
+		//	Debug.LogWarning ("If you still want to connect to it, try using particular computer network ip");
+		//} else {
+		string ip = uLink.Network.player.ipAddress;
+		serversManager.RegisterServer (ip, listenPort, gameName);
+		//}
+
 		Messenger.Broadcast( Events.Application.Configured );
 	}
 

@@ -17,6 +17,9 @@ namespace Events {
 		public static string SendData = "Network:sendData";
 		public static string Authorized = "Network:authorized";
 		public static string DisconnectedFromServer = "Network:disconnectedFromServer";
+
+		public static string SendAjax = "Network:sendAjax";
+		public static string AjaxResponse = "Network:ajaxResponse";
 	}
 
 	public static class Server{
@@ -27,6 +30,8 @@ namespace Events {
 		public static string SendDataExcept = "Network:sendDataExcept";
 		public static string Authorized = "Network:authorized";
 		public static string SentInitDataToClient = "Network:sentInitDataToClient";
+		public static string RegisteredServer = "ServersManager:registeredServer";
+		public static string UpdateServerInfo = "ServersManager:updateServerInfo";
 	}
 
 	public static class DataItem{
@@ -47,6 +52,8 @@ namespace Events {
 	public static class Client{
 		public static string ConnectTo = "Client:connectTo";
 		public static string Disconnect = "Client:disconnect";
+		public static string FetchServersList = "Client:fetchServersList";
+		public static string ServersListUpdated = "Client:serversListUpdated";
 	}
 
 	public static class Application{
