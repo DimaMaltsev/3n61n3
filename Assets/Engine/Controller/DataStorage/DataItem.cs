@@ -7,7 +7,7 @@ public class DataItem : PropertyFacade {
 	public int controllerId = -1;
 	public int id = -1;
 
-	public bool canLogObligatory = false;
+	public bool controllable = false;
 
 	protected virtual void Inititalize(){}
 	public virtual void Update(){}
@@ -15,12 +15,13 @@ public class DataItem : PropertyFacade {
 	public virtual void ControllableUpdate(){}
 	public virtual void RemoveGameObject(){}
 	public virtual void NetworkUpdateHappened(){}
+	public virtual void ControllableNetworkUpdateHappened (){}
 
 	public DataItem(){}
 
-	public DataItem( Dictionary<string,bool> properties ){
-		foreach(KeyValuePair<string,bool> pair in properties ){
-			AddProperty( pair.Key , pair.Value );
+	public DataItem( Dictionary<string,bool[]> properties ){
+		foreach(KeyValuePair<string,bool[]> pair in properties ){
+			AddProperty( pair.Key , pair.Value[0], pair.Value.Length > 1 ? pair.Value[1] : false );
 		}
 	}
 
@@ -28,7 +29,7 @@ public class DataItem : PropertyFacade {
 		_SetProperty( name , value );
 
 		if (!IsObligatoryProperty (name)) {
-			if( canLogObligatory || controllerId == -1) LogObligatoryProperties();
+			if( controllable || controllerId == -1) LogObligatoryProperties();
 			LogPropertyUpdate (name);
 		}
 	}
@@ -44,7 +45,10 @@ public class DataItem : PropertyFacade {
 	public override void Deserialize (string propertiesString)
 	{
 		base.Deserialize (propertiesString);
-		NetworkUpdateHappened ();
+		if (controllable)
+			ControllableNetworkUpdateHappened ();
+		else
+			NetworkUpdateHappened ();
 	}
 	
 	public void DeserializeWithController(string itemString){
@@ -54,7 +58,7 @@ public class DataItem : PropertyFacade {
 		string propertiesString = data[ 1 ];
 
 		this.controllerId = controllerId;
-		canLogObligatory = CrossStageData.GetNumber (CrossStageEntries.myConnectionId) == controllerId;
+		controllable = CrossStageData.GetNumber (CrossStageEntries.myConnectionId) == controllerId;
 
 		base.Deserialize( propertiesString );
 
@@ -72,6 +76,19 @@ public class DataItem : PropertyFacade {
 	public void LogObligatoryProperties(){
 		if (ignoreUpdate) return;
 		List<string> obligatoryProperties = GetObligatoryProperties ();
+		
+		for (int i = 0; i < obligatoryProperties.Count; i++) {
+			string propertyName = obligatoryProperties [i];
+			
+			if(!updatedProperties.Contains(propertyName))
+				updatedProperties.Add (propertyName);
+		}
+	}
+
+	public void LogObligatoryServerProperties(){
+		if (ignoreUpdate) return;
+		List<string> obligatoryProperties = GetObligatoryServerProperties ();
+
 		for (int i = 0; i < obligatoryProperties.Count; i++) {
 			string propertyName = obligatoryProperties [i];
 

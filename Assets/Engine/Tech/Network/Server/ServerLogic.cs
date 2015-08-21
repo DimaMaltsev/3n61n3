@@ -50,6 +50,7 @@ public class ServerLogic : AbstractNetworkLogic {
 		//	Debug.LogWarning ("If you still want to connect to it, try using particular computer network ip");
 		//} else {
 		string ip = uLink.Network.player.ipAddress;
+		print (serversManager);
 		serversManager.RegisterServer (ip, listenPort, gameName);
 		//}
 

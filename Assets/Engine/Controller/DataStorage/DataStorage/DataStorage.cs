@@ -102,6 +102,12 @@ public class DataStorage<ItemType> where ItemType: DataItem, new() {
 		}
 	}
 
+	public void LogServerObligatoryProperties(){
+		foreach (KeyValuePair<int, ItemType> pair in dataCollection) {
+			pair.Value.LogObligatoryServerProperties();
+		}
+	}
+
 	// network actions
 	
 	public static string ItemActionAdd = "A";

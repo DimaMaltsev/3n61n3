@@ -15,13 +15,13 @@ public class PropertyFacade {
 		}
 	}
 	
-	public void AddProperty( string name , bool obligatory ){		
+	public void AddProperty( string name , bool obligatory , bool controlledByServer){		
 		if ( properties.ContainsKey (name)) {
 			Debug.Log( "Trying to add already existing property '" + name + "'" );
 			return;
 		}
 		if( !properties.ContainsKey( name ) ){
-			properties.Add (name, new Property (obligatory) );
+			properties.Add (name, new Property (obligatory, controlledByServer) );
 		}
 	}
 	
@@ -49,17 +49,35 @@ public class PropertyFacade {
 	public bool IsObligatoryProperty(string name){
 		return properties [name].obligatory;
 	}
-	
+
+	public bool IsServerProperty(string name){
+		return properties [name].controlledByServer;
+	}
+
 	public void _SetProperty( string name , object value ){
 		Property p = FindProperty( name );
 		p.Set( value );
 	}
 
+	public List<string> GetObligatoryServerProperties(){
+		List<string> result = new List<string> ();
+		
+		foreach (KeyValuePair<string, Property> pair in properties) {
+			if(pair.Value.obligatory && pair.Value.controlledByServer){
+				result.Add (pair.Key);
+			}
+		}
+		return result;
+	}
+
 	public List<string> GetObligatoryProperties(){
 		List<string> result = new List<string> ();
-		foreach (KeyValuePair<string, Property> pair in properties)
-			if (pair.Value.obligatory) 
+
+		foreach (KeyValuePair<string, Property> pair in properties) {
+			if(pair.Value.obligatory && !pair.Value.controlledByServer){
 				result.Add (pair.Key);
+			}
+		}
 		return result;
 	}
 
