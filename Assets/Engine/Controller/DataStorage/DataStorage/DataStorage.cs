@@ -4,8 +4,11 @@ using System.Collections.Generic;
 
 public class DataStorage<ItemType> where ItemType: DataItem, new() {
 	private float myConnectionId = -2;
+	
 
-	public List<string> storageUpdates = new List<string> ();
+	public List<string> preUpdates = new List<string> ();
+	public List<string> postUpdates = new List<string> ();
+
 	public DataStorageRoutine<ItemType> routine = new DataStorageRoutine<ItemType>();
 	public Dictionary<int, ItemType> dataCollection = new Dictionary<int, ItemType>();
 
@@ -31,7 +34,7 @@ public class DataStorage<ItemType> where ItemType: DataItem, new() {
 		int id = routine.PickId( _id , dataCollection );
 
 		dataCollection.Add (id, item);
-		RegisterUpdate( routine.SerializeAddedItem( id , item ) );
+		RegisterUpdate( routine.SerializeAddedItem( id , item ) , true);
 		item.id = id;
 
 		return id;
@@ -41,7 +44,7 @@ public class DataStorage<ItemType> where ItemType: DataItem, new() {
 		if( !dataCollection.ContainsKey( id ) ) Debug.LogError( "DataStorage Error: removing not existing item : " + id );
 		dataCollection [id].RemoveGameObject ();
 		dataCollection.Remove( id );
-		RegisterUpdate( Serializer.Serialize( Separators.DataStorageActions , ItemActionRemove , id ) );
+		RegisterUpdate( Serializer.Serialize( Separators.DataStorageActions , ItemActionRemove , id ) , false);
 	}
 
 	public ItemType FindItemByController(int id){
@@ -56,11 +59,15 @@ public class DataStorage<ItemType> where ItemType: DataItem, new() {
 
 	public string GetUpdates(){
 		string[] itemsUpdates = routine.GetItemsUpdates (dataCollection);
-		return SerializeUpdates( routine.ConcatArrays( itemsUpdates , storageUpdates.ToArray() ) );
+		string[] allUpdates = routine.ConcatArrays (preUpdates.ToArray (), itemsUpdates);
+
+		return SerializeUpdates( routine.ConcatArrays( allUpdates, postUpdates.ToArray() ) );
 	}
 
 	public void ClearUpdatesCollections(){
-		storageUpdates.Clear();
+		preUpdates.Clear();
+		postUpdates.Clear ();
+
 		foreach( KeyValuePair<int, ItemType> pair in dataCollection )
 			pair.Value.ClearUpdates();
 	}
@@ -73,9 +80,13 @@ public class DataStorage<ItemType> where ItemType: DataItem, new() {
 		return Serializer.Deserialize( Separators.DataStorageUpdate , updatesString );
 	}
 
-	private void RegisterUpdate( string update ){
-		if( !ignoreUpdates )
-			storageUpdates.Add( update );
+	private void RegisterUpdate( string update, bool pre = false ){
+		if (!ignoreUpdates) {
+			if(pre)
+				preUpdates.Add (update);
+			else 
+				postUpdates.Add (update);
+		}
 	}
 	
 	public string CreateAddItemsCommand(){
@@ -131,10 +142,10 @@ public class DataStorage<ItemType> where ItemType: DataItem, new() {
 		int id = int.Parse( actionString[ 1 ] );
 		string actionData = actionString.Length > 2 ? actionString[ 2 ] : "";
 		
-		HandleUpdate( action , id , actionData );
+		HandleUpdate( action , id , actionData, updaterId );
 	}
 	
-	private void HandleUpdate( string action , int id , string updateString ){
+	private void HandleUpdate( string action , int id , string updateString , int updaterId){
 		if( action == ItemActionAdd ){ // ADD ITEM
 			ItemType itemToAdd = new ItemType();
 			itemToAdd.DeserializeWithController( updateString  );
@@ -145,6 +156,6 @@ public class DataStorage<ItemType> where ItemType: DataItem, new() {
 			RemoveItem( id );
 
 		if( action == ItemActionUpdate ) // Update item
-			dataCollection[ id ].Deserialize( updateString );
+			dataCollection[ id ].Deserialize( updateString , updaterId);
 	}
 }

@@ -49,7 +49,9 @@ public class StateServer : StateMultiplayer {
 	
 	private void OnDataStorageUpdate(string updates, int clientId){
 		ApplyUpdates (updates, clientId );
-		Messenger.Broadcast( Events.Server.SendDataExcept , clientId,  Events.Network.DataStorageUpdate , updates );
+
+		string data = Serializer.Serialize (Separators.NetworkSenderIdData, clientId, updates);
+		Messenger.Broadcast( Events.Server.SendDataExcept , clientId,  Events.Network.DataStorageUpdateWithSender , data );
 	}
 
 	public override void BroadcastUpdates (string updates)

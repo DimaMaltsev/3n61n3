@@ -14,7 +14,11 @@ public class DataItem : PropertyFacade {
 	public virtual void ServerUpdate(){}
 	public virtual void ControllableUpdate(){}
 	public virtual void RemoveGameObject(){}
+
 	public virtual void NetworkUpdateHappened(){}
+	public virtual void ServerNetworkUpdateHappened() {}
+	public virtual void ClientNetworkUpdateHappened() {}
+
 	public virtual void ControllableNetworkUpdateHappened (){}
 
 	public DataItem(){}
@@ -42,13 +46,17 @@ public class DataItem : PropertyFacade {
 		return Serialize( updatedProperties );
 	}
 
-	public override void Deserialize (string propertiesString)
+	public void Deserialize (string propertiesString, int updaterId)
 	{
-		base.Deserialize (propertiesString);
-		if (controllable)
-			ControllableNetworkUpdateHappened ();
+		Deserialize (propertiesString);
+
+		NetworkUpdateHappened ();
+
+		if (updaterId == -1)
+			ServerNetworkUpdateHappened();
 		else
-			NetworkUpdateHappened ();
+			ClientNetworkUpdateHappened();
+
 	}
 	
 	public void DeserializeWithController(string itemString){

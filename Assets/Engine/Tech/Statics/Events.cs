@@ -7,6 +7,7 @@ namespace Events {
 		public static string StateInitData = "Network:stateInitData";
 		public static string StateInitDataRequest = "Network:stateInitDataRequest";
 		public static string DataStorageUpdate = "Network:dataStorageUpdate";
+		public static string DataStorageUpdateWithSender = "Network:dataStorageUpdateWithSender";
 		
 		public static string AuthorizeRequest = "Network:authorizeRequest";
 		public static string ChangeState = "Network:changeState";

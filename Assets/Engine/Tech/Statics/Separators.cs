@@ -25,6 +25,7 @@ public static class Separators {
 
 	public static string NetworkEventData = "?";
 	public static string StateControllerIdUpdateData = "^";
+	public static string NetworkSenderIdData = "±";
 
 	public static string AuthorizeData = "'";
 }
